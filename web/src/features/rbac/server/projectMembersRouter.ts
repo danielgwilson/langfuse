@@ -1,6 +1,6 @@
 import { auditLog } from "@/src/features/audit-logs/auditLog";
 import { sendProjectInvitation } from "@/src/features/email/lib/project-invitation";
-import { throwIfNoAccess } from "@/src/features/rbac/utils/checkAccess";
+import { throwIfNoProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
 import {
   createTRPCRouter,
   protectedProjectProcedure,
@@ -17,7 +17,7 @@ export const projectMembersRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input, ctx }) => {
-      throwIfNoAccess({
+      throwIfNoProjectAccess({
         session: ctx.session,
         projectId: input.projectId,
         scope: "members:read",
@@ -68,7 +68,7 @@ export const projectMembersRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      throwIfNoAccess({
+      throwIfNoProjectAccess({
         session: ctx.session,
         projectId: input.projectId,
         scope: "members:delete",
@@ -115,7 +115,7 @@ export const projectMembersRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      throwIfNoAccess({
+      throwIfNoProjectAccess({
         session: ctx.session,
         projectId: input.projectId,
         scope: "members:delete",
@@ -148,7 +148,7 @@ export const projectMembersRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      throwIfNoAccess({
+      throwIfNoProjectAccess({
         session: ctx.session,
         projectId: input.projectId,
         scope: "members:create",

@@ -1,8 +1,10 @@
 import { type DefaultSession, type DefaultUser } from "next-auth";
 import {
   type User as PrismaUser,
-  type Membership as PrismaMembership,
+  type ProjectMembership as PrismaProjectMembership,
   type Project as PrismaProject,
+  type Organization as PrismaOrganization,
+  type OrganizationMembership as PrismaOrganizationMembership,
 } from "@langfuse/shared/src/db";
 import { type Flags } from "@/src/features/feature-flags/types";
 
@@ -30,10 +32,16 @@ declare module "next-auth" {
     image?: PrismaUser["image"];
     admin?: PrismaUser["admin"];
     emailVerified?: PrismaUser["emailVerified"];
-    projects: {
-      id: PrismaProject["id"];
-      name: PrismaProject["name"];
-      role: PrismaMembership["role"];
+    organizations: {
+      id: PrismaOrganization["id"];
+      name: PrismaOrganization["name"];
+      role: PrismaOrganizationMembership["role"];
+      cloudConfig: PrismaOrganization["cloudConfig"];
+      projects: {
+        id: PrismaProject["id"];
+        name: PrismaProject["name"];
+        role: PrismaMembership["role"];
+      }[];
     }[];
     featureFlags: Flags;
   }

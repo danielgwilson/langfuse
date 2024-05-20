@@ -109,7 +109,7 @@ const staticProviders: Provider[] = [
         image: dbUser.image,
         emailVerified: dbUser.emailVerified,
         featureFlags: parseFlags(dbUser.featureFlags),
-        projects: [],
+        organizations: [],
       };
 
       return userObj;
@@ -243,9 +243,18 @@ export async function getAuthOptions(): Promise<NextAuthOptions> {
             image: true,
             featureFlags: true,
             admin: true,
-            projectMemberships: {
+            organizationMemberships: {
               include: {
-                project: true,
+                organization: {
+                  include: {
+                    projects: true,
+                  },
+                },
+                ProjectMemberships: {
+                  include: {
+                    project: true,
+                  },
+                },
               },
             },
           },
@@ -270,11 +279,27 @@ export async function getAuthOptions(): Promise<NextAuthOptions> {
                   email: dbUser.email,
                   image: dbUser.image,
                   admin: dbUser.admin,
-                  projects: dbUser.projectMemberships.map((membership) => ({
-                    id: membership.project.id,
-                    name: membership.project.name,
-                    role: membership.role,
-                  })),
+                  organizations: dbUser.organizationMemberships.map(
+                    (orgMembership) => ({
+                      id: orgMembership.organization.id,
+                      name: orgMembership.organization.name,
+                      role: orgMembership.role,
+                      cloudConfig: orgMembership.organization.cloudConfig,
+                      projects: orgMembership.organization.projects
+                        .map((project) => ({
+                          id: project.id,
+                          name: project.name,
+                          role:
+                            orgMembership.ProjectMemberships.find(
+                              (membership) =>
+                                membership.projectId === project.id,
+                            )?.role ??
+                            orgMembership.defaultProjectRole ??
+                            (orgMembership.role === "OWNER" ? "ADMIN" : "NONE"),
+                        }))
+                        .filter((project) => project.role !== "NONE"),
+                    }),
+                  ),
                   featureFlags: parseFlags(dbUser.featureFlags),
                 }
               : null,
